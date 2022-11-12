@@ -107,11 +107,13 @@ def main(opt):
     # configure policy
     policy = partial(_epsilon_greedy, model=model, eps=0.001)
     ep_returns = [0 for _ in range(opt.episodes)]
-
+    ep_obs = []
     for ep in range(opt.episodes):
         obs, done = env.reset(), False
+        obs_list = []
         while not done:
             # print(f"{ep = }")
+            obs_list.append(obs)
             action, _ = policy(obs.to(my_device))
             # print(f" {action = }")
             obs, reward, done, _ = env.step(action)
@@ -119,14 +121,15 @@ def main(opt):
             # print(f" {done = }")
             ep_returns[ep] += reward
         print(f"{ep:02d})  Gt: {ep_returns[ep]:7.1f}")
-
+        ep_obs.append(obs_list)
+    torch.stack(torch.stack())
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     # parser.add_argument("game", type=str, help="game name")
     parser.add_argument("path", type=str, help="path to the model")
     parser.add_argument(
-        "-e", "--episodes", default=10, type=int, help="number of episodes"
+        "-e", "--episodes", default=1, type=int, help="number of episodes"
     )
     parser.add_argument(
         "-v",
