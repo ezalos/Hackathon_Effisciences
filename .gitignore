@@ -1,6 +1,6 @@
 # project
-models/*
-!models/.gitignore
+#models/*
+#!models/.gitignore
 
 # ide
 .vscode/
