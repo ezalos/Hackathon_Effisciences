@@ -8,6 +8,7 @@ from torch import nn
 
 from ale_env import ALEModern, ALEClassic
 
+my_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 class AtariNet(nn.Module):
     """ Estimator used by DQN-style algorithms for ATARI games.
@@ -82,8 +83,8 @@ def main(opt):
     env = ALE(
         game,
         torch.randint(100_000, (1,)).item(),
-        sdl=True,
-        device="cpu",
+        sdl=False,
+        device=my_device,
         clip_rewards_val=False,
         record_dir=str(record_dir) if opt.record else None,
     )
@@ -98,8 +99,10 @@ def main(opt):
     print(env)
 
     # load state
-    ckpt = _load_checkpoint(opt.path)
+    print(f"{opt.path = }")
+    ckpt = _load_checkpoint(opt.path, device=my_device)
     model.load_state_dict(ckpt["estimator_state"])
+    model.to(my_device)
 
     # configure policy
     policy = partial(_epsilon_greedy, model=model, eps=0.001)
@@ -108,8 +111,12 @@ def main(opt):
     for ep in range(opt.episodes):
         obs, done = env.reset(), False
         while not done:
-            action, _ = policy(obs)
+            # print(f"{ep = }")
+            action, _ = policy(obs.to(my_device))
+            # print(f" {action = }")
             obs, reward, done, _ = env.step(action)
+            # print(f" {reward = }")
+            # print(f" {done = }")
             ep_returns[ep] += reward
         print(f"{ep:02d})  Gt: {ep_returns[ep]:7.1f}")
 
