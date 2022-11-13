@@ -1,7 +1,7 @@
 # project
 models/*
 !models/.gitignore
-
+!/models/MDQN_modern/Kangaroo/0/model_50000000.gz
 # ide
 .vscode/
 

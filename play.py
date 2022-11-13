@@ -8,12 +8,16 @@ from torch import nn
 
 from ale_env import ALEModern, ALEClassic
 
+from MakeAPatch import patch_loop
+
 my_device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 class AtariNet(nn.Module):
-    """ Estimator used by DQN-style algorithms for ATARI games.
-        Works with DQN, M-DQN and C51.
+    """Estimator used by DQN-style algorithms for ATARI games.
+    Works with DQN, M-DQN and C51.
     """
+
     def __init__(self, action_no, distributional=False):
         super().__init__()
 
@@ -36,12 +40,14 @@ class AtariNet(nn.Module):
             nn.ReLU(inplace=True),
         )
         self.__head = nn.Sequential(
-            nn.Linear(64 * 7 * 7, 512), nn.ReLU(inplace=True), nn.Linear(512, out_size),
+            nn.Linear(64 * 7 * 7, 512),
+            nn.ReLU(inplace=True),
+            nn.Linear(512, out_size),
         )
 
     def forward(self, x):
-        assert x.dtype == torch.uint8, "The model expects states of type ByteTensor"
-        x = x.float().div(255)
+        # assert x.dtype == torch.uint8, "The model expects states of type ByteTensor"
+        # x = x.float().div(255)
 
         x = self.__features(x)
         qs = self.__head(x.view(x.size(0), -1))
@@ -104,6 +110,12 @@ def main(opt):
     model.load_state_dict(ckpt["estimator_state"])
     model.to(my_device)
 
+    print(f"{model = }")
+
+    patch_loop(env, model)
+    return None
+
+
     # configure policy
     policy = partial(_epsilon_greedy, model=model, eps=0.001)
     ep_returns = [0 for _ in range(opt.episodes)]
@@ -135,6 +147,9 @@ if __name__ == "__main__":
         help="set mode and difficulty, interactively",
     )
     parser.add_argument(
-        "-r", "--record", action="store_true", help="record png screens and sound",
+        "-r",
+        "--record",
+        action="store_true",
+        help="record png screens and sound",
     )
     main(parser.parse_args())

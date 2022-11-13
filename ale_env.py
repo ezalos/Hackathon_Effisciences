@@ -45,7 +45,7 @@ def _get_rom(game):
 
 
 class ALEModern:
-    """ A wrapper over atari_py, the Arcade Learning Environment python
+    """A wrapper over atari_py, the Arcade Learning Environment python
     bindings that follows the Dopamine protocol, which in turn, follows (Machado, 2017):
         - frame concatentation of `history_len=4`
         - maximum episode length of 108,000 frames
@@ -118,7 +118,9 @@ class ALEModern:
 
     def _get_state(self):
         state = cv2.resize(
-            self.ale.getScreenGrayscale(), (84, 84), interpolation=cv2.INTER_AREA,
+            self.ale.getScreenGrayscale(),
+            (84, 84),
+            interpolation=cv2.INTER_AREA,
         )
         return torch.tensor(state, dtype=torch.uint8, device=self.device)
 
@@ -129,7 +131,7 @@ class ALEModern:
             )
 
     def reset(self):
-        """ Reset the environment, return initial observation. """
+        """Reset the environment, return initial observation."""
         # reset internals
         self._reset_buffer()
         self.ale.reset_game()
@@ -140,7 +142,7 @@ class ALEModern:
         return torch.stack(list(self.state_buffer), 0).unsqueeze(0).byte()
 
     def step(self, action):
-        """ Advance the environment given the agent's action.
+        """Advance the environment given the agent's action.
 
         Args:
             action (int): Agent's action.
@@ -198,7 +200,7 @@ class ALEModern:
         self.ale.reset_game()
 
     def __str__(self):
-        """ User friendly representation of this class. """
+        """User friendly representation of this class."""
         stochasticity = (
             f"{self.sticky_action_p:.2f}_sticky_action"
             if self.sticky_action_p
@@ -271,14 +273,14 @@ class ALEClassic(ALEModern):
         return state, reward, done, {}
 
     def train(self):
-        """ Switches the env to training phase
-            and uses the loss of life as a training signal.
+        """Switches the env to training phase
+        and uses the loss of life as a training signal.
         """
         self.training = True
 
     def eval(self):
-        """ Switches the env to evaluation phase
-            and uses the standard game over as a training signal.
+        """Switches the env to evaluation phase
+        and uses the standard game over as a training signal.
         """
         self.training = False
 
